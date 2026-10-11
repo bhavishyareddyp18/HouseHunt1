@@ -1,6 +1,7 @@
 import "./FeaturedProperties.css";
 
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { FaBed, FaBath, FaMapMarkerAlt } from "react-icons/fa";
 
 function FeaturedProperties() {
@@ -125,11 +126,12 @@ function FeaturedProperties() {
 
                       </div>
 
-                      <button
-                        className="btn view-btn"
+                      <Link
+                        to={`/property/${property.id}`}
+                        className="btn view-btn text-center text-decoration-none"
                       >
                         View Details
-                      </button>
+                      </Link>
 
                     </div>
 

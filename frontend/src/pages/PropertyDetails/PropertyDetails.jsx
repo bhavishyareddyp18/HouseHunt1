@@ -32,6 +32,7 @@ import PropertyReviewForm from "../../components/property/PropertyReviewForm";
 import ViewCounter from "../../components/property/ViewCounter";
 import ShareProperty from "../../components/property/ShareProperty";
 
+import api from "../../services/api";
 import BookingForm
 from "../../components/booking/BookingForm";
 
@@ -54,80 +55,68 @@ function PropertyDetails() {
   const [loading, setLoading] =
     useState(false);
 
-  const property = {
-
+  const defaultProperty = {
     _id: id,
-
     title: "Luxury Villa",
-
     rent: 45000,
-
+    price: 45000,
     city: "Hyderabad",
-
     state: "Telangana",
-
-    address:
-      "Banjara Hills Road No 12",
-
+    address: "Banjara Hills Road No 12",
     bedrooms: 4,
-
     bathrooms: 3,
-
     views: 2350,
-
     rating: 4.8,
-
     status: "Available",
-
     lat: 17.3850,
-
     lng: 78.4867,
-
-    virtualTour:
-      "https://www.youtube.com/embed/dQw4w9WgXcQ",
-
-    description:
-      "Beautiful luxury villa with modern amenities and premium interiors. Perfect for families looking for comfort and convenience.",
-
+    virtualTour: "https://www.youtube.com/embed/dQw4w9WgXcQ",
+    description: "Beautiful luxury villa with modern amenities and premium interiors. Perfect for families looking for comfort and convenience.",
     images: [
-
       "https://images.unsplash.com/photo-1613977257363-707ba9348227",
-
       "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
-
       "https://images.unsplash.com/photo-1568605114967-8130f3a36994",
-
       "https://images.unsplash.com/photo-1570129477492-45c003edd2be"
-
     ],
-
-    amenities: [
-
-      "Parking",
-      "WiFi",
-      "Pet Friendly",
-      "Power Backup",
-      "Security",
-      "Gym"
-
-    ],
-
+    amenities: ["Parking", "WiFi", "Pet Friendly", "Power Backup", "Security", "Gym"],
     owner: {
-
       name: "Rahul Sharma",
-
-      email:
-        "rahul@gmail.com",
-
-      phone:
-        "+91 9876543210",
-
-      image:
-        "https://randomuser.me/api/portraits/men/32.jpg"
-
+      email: "rahul@gmail.com",
+      phone: "+91 9876543210",
+      image: "https://randomuser.me/api/portraits/men/32.jpg"
     }
-
   };
+
+  const [property, setProperty] = useState(defaultProperty);
+  const [propertyLoading, setPropertyLoading] = useState(true);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchProperty = async () => {
+      try {
+        const res = await api.get(`/properties/${id}`);
+        const data = res.data?.data || res.data;
+        if (isMounted && data) {
+          setProperty({
+            ...defaultProperty,
+            ...data,
+            _id: String(data._id || id),
+            rent: data.rent || data.price || defaultProperty.rent,
+            price: data.price || data.rent || defaultProperty.price,
+            images: Array.isArray(data.images) && data.images.length > 0 ? data.images : defaultProperty.images,
+            amenities: Array.isArray(data.amenities) && data.amenities.length > 0 ? data.amenities : defaultProperty.amenities,
+            owner: data.owner || defaultProperty.owner
+          });
+        }
+      } catch (err) {
+        console.warn("Using default property view:", err.message);
+      } finally {
+        if (isMounted) setPropertyLoading(false);
+      }
+    };
+    fetchProperty();
+    return () => { isMounted = false; };
+  }, [id]);
 
   useEffect(() => {
 

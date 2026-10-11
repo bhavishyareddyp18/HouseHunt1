@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../services/api";
+import useAuth from "../../hooks/useAuth";
 
 function Login() {
 
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [formData, setFormData] = useState({
     email: "",
@@ -42,32 +44,8 @@ function Login() {
 
       const data = response.data;
 
-      // Store token based on Remember Me
-      if (rememberMe) {
-
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-
-      } else {
-
-        sessionStorage.setItem(
-          "token",
-          data.token
-        );
-
-        sessionStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-
-      }
+      // Store in auth context and storage
+      login(data.user, data.token, rememberMe);
 
       // Redirect based on role
 
